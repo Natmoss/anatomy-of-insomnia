@@ -1,0 +1,1962 @@
+<!DOCTYPE html>
+<html lang="ru" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Анатомия бессонницы: Ночной Петербург как пространство предельных эмоциональных переживаний</title>
+
+  <!-- Google Fonts: Cormorant Garamond, Inter, JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Leaflet CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <!-- Tailwind Custom Config -->
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            noir: {
+              bg: '#0B0F17',
+              card: '#121826',
+              elevated: '#171F30',
+              border: 'rgba(255, 255, 255, 0.08)',
+            },
+            affect: {
+              exaltation: '#38BDF8', // Экзальтация и надежда
+              paranoia: '#F59E0B',   // Лихорадка, тревога и паранойя
+              fate: '#F43F5E',       // Экзистенциальный тупик и фатум
+            }
+          },
+          fontFamily: {
+            serif: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+            sans: ['"Inter"', 'system-ui', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    /* Base Nocturnal Petersburg Noir Styling */
+    html, body {
+      background-color: #0B0F17;
+      color: #E2E8F0;
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* Custom Scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0B0F17;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #232D42;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #334155;
+    }
+
+    /* Leaflet Container & Dark Noir Integration */
+    #spb-map {
+      background-color: #090D14;
+      z-index: 1;
+    }
+    .leaflet-container {
+      font-family: 'Inter', sans-serif !important;
+      background: #090D14 !important;
+    }
+    .leaflet-control-attribution {
+      background: rgba(11, 15, 23, 0.82) !important;
+      color: #64748B !important;
+      font-size: 10px !important;
+      backdrop-filter: blur(6px);
+      border-top-left-radius: 8px;
+    }
+    .leaflet-control-attribution a {
+      color: #94A3B8 !important;
+    }
+    .leaflet-control-zoom a {
+      background-color: #121826 !important;
+      color: #E2E8F0 !important;
+      border-color: rgba(255, 255, 255, 0.1) !important;
+    }
+    .leaflet-control-zoom a:hover {
+      background-color: #1E293B !important;
+      color: #FFFFFF !important;
+    }
+
+    /* Custom Glowing Locus Markers */
+    .locus-marker-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .locus-marker-core {
+      width: 30px;
+      height: 30px;
+      border-radius: 9999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      color: #0B0F17;
+      border: 2px solid #0B0F17;
+      transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s ease;
+      position: relative;
+      z-index: 2;
+      cursor: pointer;
+    }
+    .locus-marker-wrapper:hover .locus-marker-core {
+      transform: scale(1.18);
+    }
+    .locus-marker-wrapper.is-active .locus-marker-core {
+      transform: scale(1.28);
+      border: 2px solid #FFFFFF;
+      color: #05080F;
+      font-weight: 700;
+    }
+    .locus-pulse-ring {
+      position: absolute;
+      width: 48px;
+      height: 48px;
+      border-radius: 9999px;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .locus-marker-wrapper.is-active .locus-pulse-ring {
+      animation: lanternPulse 2.2s infinite cubic-bezier(0.24, 0, 0.38, 1);
+    }
+
+    @keyframes lanternPulse {
+      0% {
+        transform: scale(0.65);
+        opacity: 0.75;
+      }
+      70% {
+        transform: scale(1.45);
+        opacity: 0;
+      }
+      100% {
+        transform: scale(1.45);
+        opacity: 0;
+      }
+    }
+
+    /* Leaflet Custom Tooltip */
+    .noir-tooltip {
+      background: rgba(18, 24, 38, 0.95) !important;
+      border: 1px solid rgba(255, 255, 255, 0.14) !important;
+      color: #F1F5F9 !important;
+      border-radius: 8px !important;
+      padding: 6px 10px !important;
+      font-family: 'Inter', sans-serif !important;
+      font-size: 12px !important;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6) !important;
+    }
+    .noir-tooltip::before {
+      border-top-color: rgba(18, 24, 38, 0.95) !important;
+    }
+
+    /* Book Typography Quote Styling */
+    .literary-quote {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-style: italic;
+      line-height: 1.55;
+      letter-spacing: 0.01em;
+    }
+
+    /* Subtle Fade Transition for Tab Views */
+    .tab-panel {
+      animation: panelFadeIn 0.28s ease-out;
+    }
+    @keyframes panelFadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col bg-[#0B0F17] text-slate-200 selection:bg-sky-500/30 selection:text-sky-200">
+
+  <!-- ===================================================================== -->
+  <!-- HEADER: ACADEMIC NOIR MASTHEAD & SPA NAVIGATION TABS                   -->
+  <!-- ===================================================================== -->
+  <header class="sticky top-0 z-40 bg-[#0B0F17]/95 backdrop-blur-md border-b border-white/[0.08]">
+    <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pt-3.5 pb-0">
+      <!-- Top Metadata Row -->
+      <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+        <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-[#121826] border border-white/[0.08]">
+          <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+          <span class="font-mono text-[10px] sm:text-[11px] tracking-wider uppercase text-slate-300">
+            DIGITAL HUMANITIES • ГИС-НАРРАТИВ И КАРТОГРАФИЯ АФФЕКТА (1848–1912)
+          </span>
+        </div>
+        <div class="hidden md:flex items-center gap-3 text-xs text-slate-400">
+          <span>Автор концепции: <strong class="text-slate-200 font-medium">Никита Шайдаков</strong></span>
+          <span class="text-slate-600">•</span>
+          <span class="font-mono text-[11px] text-slate-400">WGS84 / SPb Corpus</span>
+        </div>
+      </div>
+
+      <!-- Main Title -->
+      <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-3 pb-3">
+        <h1 class="font-serif text-2xl sm:text-3xl lg:text-[32px] font-bold text-slate-100 leading-tight tracking-tight">
+          Анатомия бессонницы: <span class="text-slate-300 font-semibold italic">Ночной Петербург как пространство предельных эмоциональных переживаний</span>
+        </h1>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav aria-label="Разделы проекта" class="flex items-center gap-1 sm:gap-2 overflow-x-auto no-scrollbar -mb-px">
+        <button
+          id="tab-btn-map"
+          onclick="switchTab('map')"
+          class="tab-nav-btn group flex items-center gap-2 px-3.5 sm:px-4 py-2.5 text-xs sm:text-sm font-medium border-b-2 border-sky-400 text-white whitespace-nowrap transition-colors"
+        >
+          <i class="fa-solid fa-map-location-dot text-sky-400"></i>
+          <span>1. Интерактивная карта (StoryMap)</span>
+        </button>
+
+        <button
+          id="tab-btn-analytics"
+          onclick="switchTab('analytics')"
+          class="tab-nav-btn group flex items-center gap-2 px-3.5 sm:px-4 py-2.5 text-xs sm:text-sm font-medium border-b-2 border-transparent text-slate-400 hover:text-slate-200 whitespace-nowrap transition-colors"
+        >
+          <i class="fa-solid fa-chart-column text-amber-400/80 group-hover:text-amber-400"></i>
+          <span>2. Аналитика и датасет (12 локусов)</span>
+        </button>
+
+        <button
+          id="tab-btn-methodology"
+          onclick="switchTab('methodology')"
+          class="tab-nav-btn group flex items-center gap-2 px-3.5 sm:px-4 py-2.5 text-xs sm:text-sm font-medium border-b-2 border-transparent text-slate-400 hover:text-slate-200 whitespace-nowrap transition-colors"
+        >
+          <i class="fa-solid fa-book-open text-rose-400/80 group-hover:text-rose-400"></i>
+          <span>3. Методология DH</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ===================================================================== -->
+  <!-- MAIN APPLICATION CONTENT                                              -->
+  <!-- ===================================================================== -->
+  <main class="flex-1 flex flex-col">
+
+    <!-- =================================================================== -->
+    <!-- TAB 1: STORYMAP EXPLORER (DEFAULT ACTIVE)                           -->
+    <!-- =================================================================== -->
+    <section id="panel-map" class="tab-panel flex-1 flex flex-col max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 gap-4">
+
+      <!-- Filter & Layer Control Bar -->
+      <div class="bg-[#121826] border border-white/[0.08] rounded-xl p-3 sm:p-3.5 flex flex-col xl:flex-row xl:items-center justify-between gap-3 shadow-lg shadow-black/20">
+
+        <!-- Left: Affect Pole Filter Pills -->
+        <div class="flex flex-wrap items-center gap-1.5">
+          <span class="text-[11px] uppercase tracking-wider text-slate-400 font-semibold mr-1">
+            Полюс аффекта:
+          </span>
+
+          <button
+            onclick="setAffectFilter('all')"
+            data-affect-btn="all"
+            class="affect-filter-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-200 text-[#0B0F17] transition-all"
+          >
+            Все (12)
+          </button>
+
+          <button
+            onclick="setAffectFilter('exaltation')"
+            data-affect-btn="exaltation"
+            class="affect-filter-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-[#0B0F17]/70 text-slate-300 border border-white/[0.08] hover:border-sky-400/50 transition-all"
+          >
+            <span class="w-2 h-2 rounded-full bg-[#38BDF8] shadow-[0_0_8px_#38BDF8]"></span>
+            <span>Экзальтация и надежда</span>
+          </button>
+
+          <button
+            onclick="setAffectFilter('paranoia')"
+            data-affect-btn="paranoia"
+            class="affect-filter-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-[#0B0F17]/70 text-slate-300 border border-white/[0.08] hover:border-amber-400/50 transition-all"
+          >
+            <span class="w-2 h-2 rounded-full bg-[#F59E0B] shadow-[0_0_8px_#F59E0B]"></span>
+            <span>Лихорадка и паранойя</span>
+          </button>
+
+          <button
+            onclick="setAffectFilter('fate')"
+            data-affect-btn="fate"
+            class="affect-filter-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-[#0B0F17]/70 text-slate-300 border border-white/[0.08] hover:border-rose-400/50 transition-all"
+          >
+            <span class="w-2 h-2 rounded-full bg-[#F43F5E] shadow-[0_0_8px_#F43F5E]"></span>
+            <span>Тупик и фатум</span>
+          </button>
+        </div>
+
+        <!-- Right: Work Dropdown & Map Layer Checkboxes -->
+        <div class="flex flex-wrap items-center gap-3 sm:gap-4">
+          <!-- Literary Work Filter -->
+          <div class="flex items-center gap-2">
+            <label for="work-filter-select" class="text-[11px] uppercase tracking-wider text-slate-400 font-semibold hidden sm:inline">
+              Текст:
+            </label>
+            <select
+              id="work-filter-select"
+              onchange="setWorkFilter(this.value)"
+              class="bg-[#0B0F17] border border-white/[0.12] text-slate-200 text-xs rounded-lg px-3 py-1.5 focus:outline-none focus:border-sky-400 transition-colors cursor-pointer"
+            >
+              <option value="all">Все тексты (1848–1912)</option>
+              <option value="white_nights">Ф. М. Достоевский «Белые ночи» (1848)</option>
+              <option value="crime_punishment">Ф. М. Достоевский «Преступление и наказание» (1866)</option>
+              <option value="blok">А. А. Блок «Город» / «Аптека» (1904–1912)</option>
+            </select>
+          </div>
+
+          <!-- Map Layer Checkboxes -->
+          <div class="flex flex-wrap items-center gap-3 pl-0 sm:pl-2 sm:border-l border-white/[0.08]">
+            <label class="inline-flex items-center gap-2 text-xs text-slate-300 cursor-pointer select-none hover:text-white">
+              <input
+                type="checkbox"
+                id="toggle-routes"
+                checked
+                onchange="toggleMapLayers()"
+                class="w-3.5 h-3.5 rounded accent-sky-400 bg-[#0B0F17] border-white/20 cursor-pointer"
+              />
+              <span>Показать маршрутные линии</span>
+            </label>
+
+            <label class="inline-flex items-center gap-2 text-xs text-slate-300 cursor-pointer select-none hover:text-white">
+              <input
+                type="checkbox"
+                id="toggle-heatmap"
+                checked
+                onchange="toggleMapLayers()"
+                class="w-3.5 h-3.5 rounded accent-amber-400 bg-[#0B0F17] border-white/20 cursor-pointer"
+              />
+              <span>Кластеры аффекта (Heatmap-зоны)</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Split-Screen Workspace: Left 60% Map / Right 40% StoryMap Reader -->
+      <div class="flex-1 flex flex-col lg:flex-row gap-4 min-h-[600px]">
+
+        <!-- LEFT COLUMN (60%): Interactive Leaflet Map -->
+        <div class="w-full lg:w-[60%] bg-[#121826] border border-white/[0.08] rounded-xl overflow-hidden relative flex flex-col shadow-xl shadow-black/30">
+          <!-- Map Top Overlay Bar -->
+          <div class="absolute top-3 left-12 right-3 z-[400] flex flex-wrap items-center justify-between gap-2 pointer-events-none">
+            <div class="pointer-events-auto bg-[#0B0F17]/85 backdrop-blur-md border border-white/[0.1] rounded-lg px-3 py-1.5 flex items-center gap-2 text-[11px] text-slate-300">
+              <i class="fa-solid fa-compass text-sky-400"></i>
+              <span>Санкт-Петербург • Ночная топография</span>
+              <span id="visible-count-badge" class="font-mono text-[10px] px-1.5 py-0.5 rounded bg-white/10 text-slate-200">12 точек</span>
+            </div>
+
+            <button
+              onclick="resetMapOverview()"
+              title="Вернуть общий обзор Санкт-Петербурга"
+              class="pointer-events-auto bg-[#121826]/90 hover:bg-[#1E293B] backdrop-blur-md border border-white/[0.12] rounded-lg px-2.5 py-1.5 text-[11px] font-medium text-slate-200 flex items-center gap-1.5 transition-colors shadow-md"
+            >
+              <i class="fa-solid fa-expand text-slate-400"></i>
+              <span>Обзор города</span>
+            </button>
+          </div>
+
+          <!-- Leaflet Canvas -->
+          <div id="spb-map" class="w-full h-[380px] sm:h-[440px] lg:h-full lg:min-h-[580px] flex-1"></div>
+
+          <!-- Map Bottom Legend -->
+          <div class="bg-[#0B0F17]/95 border-t border-white/[0.08] px-3.5 py-2.5 flex flex-wrap items-center justify-between gap-2 text-[11px]">
+            <div class="flex flex-wrap items-center gap-3 sm:gap-4">
+              <div class="flex items-center gap-1.5">
+                <span class="w-2.5 h-2.5 rounded-full bg-[#38BDF8] shadow-[0_0_8px_#38BDF8]"></span>
+                <span class="text-slate-300">Экзальтация и надежда</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span class="w-2.5 h-2.5 rounded-full bg-[#F59E0B] shadow-[0_0_8px_#F59E0B]"></span>
+                <span class="text-slate-300">Лихорадка и паранойя</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span class="w-2.5 h-2.5 rounded-full bg-[#F43F5E] shadow-[0_0_8px_#F43F5E]"></span>
+                <span class="text-slate-300">Экзистенциальный тупик и фатум</span>
+              </div>
+            </div>
+            <span class="font-mono text-[10px] text-slate-500 hidden sm:inline">Клавиши ← / → для навигации</span>
+          </div>
+        </div>
+
+        <!-- RIGHT COLUMN (40%): StoryMap Reader Card -->
+        <aside class="w-full lg:w-[40%] bg-[#121826] border border-white/[0.08] rounded-xl flex flex-col justify-between overflow-hidden shadow-xl shadow-black/30">
+
+          <!-- Top Step Navigation Bar -->
+          <div class="bg-[#0E1420] border-b border-white/[0.08] px-4 py-3 flex items-center justify-between gap-2">
+            <button
+              id="btn-prev-locus"
+              onclick="navigateLocus(-1)"
+              class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#171F30] hover:bg-[#1F2A40] disabled:opacity-40 disabled:pointer-events-none border border-white/[0.08] text-xs font-medium text-slate-200 transition-colors"
+            >
+              <i class="fa-solid fa-arrow-left text-[11px]"></i>
+              <span>Предыдущий локус</span>
+            </button>
+
+            <div class="text-center">
+              <span id="locus-step-counter" class="font-mono text-xs font-semibold text-slate-200">
+                Локус 1 из 12
+              </span>
+            </div>
+
+            <button
+              id="btn-next-locus"
+              onclick="navigateLocus(1)"
+              class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#171F30] hover:bg-[#1F2A40] disabled:opacity-40 disabled:pointer-events-none border border-white/[0.08] text-xs font-medium text-slate-200 transition-colors"
+            >
+              <span>Следующий локус</span>
+              <i class="fa-solid fa-arrow-right text-[11px]"></i>
+            </button>
+          </div>
+
+          <!-- Scrollable Card Content -->
+          <div id="storymap-reader-body" class="p-4 sm:p-5 flex-1 overflow-y-auto flex flex-col gap-4">
+            <!-- Dynamically populated by renderStoryCard() -->
+          </div>
+
+          <!-- Bottom Quick Locus Dot Strip -->
+          <div class="bg-[#0E1420] border-t border-white/[0.08] px-4 py-2.5 flex items-center justify-between gap-2">
+            <span class="font-mono text-[10px] uppercase tracking-wider text-slate-500">Маршрут:</span>
+            <div id="locus-dots-strip" class="flex items-center gap-1.5 flex-wrap justify-end">
+              <!-- Dynamically populated dots -->
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- TAB 2: ANALYTICS & DATASET (12 LOCI + CSV EXPORT)                   -->
+    <!-- =================================================================== -->
+    <section id="panel-analytics" class="tab-panel hidden flex-1 max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col gap-6">
+
+      <!-- KPI Overview Strip -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div class="bg-[#121826] border border-white/[0.08] rounded-xl p-4">
+          <div class="font-mono text-[11px] uppercase tracking-wider text-slate-400 mb-1">Объём корпуса</div>
+          <div class="font-serif text-3xl font-bold text-white">12 <span class="text-base font-sans font-normal text-slate-400">локусов</span></div>
+          <div class="text-xs text-slate-400 mt-1">Верифицированные адреса СПб</div>
+        </div>
+        <div class="bg-[#121826] border border-white/[0.08] rounded-xl p-4">
+          <div class="font-mono text-[11px] uppercase tracking-wider text-sky-400 mb-1">Полюс I • Надежда</div>
+          <div class="font-serif text-3xl font-bold text-[#38BDF8]">4 <span class="text-base font-sans font-normal text-slate-400">точки (33.3%)</span></div>
+          <div class="text-xs text-slate-400 mt-1">Экзальтация и визионерство</div>
+        </div>
+        <div class="bg-[#121826] border border-white/[0.08] rounded-xl p-4">
+          <div class="font-mono text-[11px] uppercase tracking-wider text-amber-400 mb-1">Полюс II • Лихорадка</div>
+          <div class="font-serif text-3xl font-bold text-[#F59E0B]">4 <span class="text-base font-sans font-normal text-slate-400">точки (33.3%)</span></div>
+          <div class="text-xs text-slate-400 mt-1">Тревога, духота и паранойя</div>
+        </div>
+        <div class="bg-[#121826] border border-white/[0.08] rounded-xl p-4">
+          <div class="font-mono text-[11px] uppercase tracking-wider text-rose-400 mb-1">Полюс III • Фатум</div>
+          <div class="font-serif text-3xl font-bold text-[#F43F5E]">4 <span class="text-base font-sans font-normal text-slate-400">точки (33.3%)</span></div>
+          <div class="text-xs text-slate-400 mt-1">Экзистенциальный тупик</div>
+        </div>
+      </div>
+
+      <!-- Charts Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <!-- Chart 1: Affect by Urban Space Type -->
+        <div class="bg-[#121826] border border-white/[0.08] rounded-xl p-5 flex flex-col">
+          <div class="mb-3">
+            <span class="font-mono text-[10px] uppercase tracking-wider text-sky-400">Проверка пространственной гипотезы</span>
+            <h2 class="font-serif text-xl sm:text-2xl font-bold text-slate-100 mt-0.5">
+              Распределение эмоциональных полюсов по типам городского пространства
+            </h2>
+            <p class="text-xs text-slate-400 mt-1">
+              Открытая вода контрастирует между экзальтацией и фатумом; плотная застройка на 100% концентрирует паранойю.
+            </p>
+          </div>
+          <div class="relative h-[280px] w-full mt-auto">
+            <canvas id="chart-space-types"></canvas>
+          </div>
+        </div>
+
+        <!-- Chart 2: Chronological Evolution -->
+        <div class="bg-[#121826] border border-white/[0.08] rounded-xl p-5 flex flex-col">
+          <div class="mb-3">
+            <span class="font-mono text-[10px] uppercase tracking-wider text-amber-400">Диахронический срез (1848 → 1912)</span>
+            <h2 class="font-serif text-xl sm:text-2xl font-bold text-slate-100 mt-0.5">
+              Эволюция эмоционального спектра ночного Петербурга по срезам эпох
+            </h2>
+            <p class="text-xs text-slate-400 mt-1">
+              Сдвиг от романтической экзальтации «Белых ночей» (1848) к лихорадке (1866) и ледяному тупику модернизма (1912).
+            </p>
+          </div>
+          <div class="relative h-[280px] w-full mt-auto">
+            <canvas id="chart-chronology"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Interactive Dataset Table Card -->
+      <div class="bg-[#121826] border border-white/[0.08] rounded-xl overflow-hidden flex flex-col">
+        <!-- Table Header & Controls -->
+        <div class="p-4 sm:p-5 border-b border-white/[0.08] flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h2 class="font-serif text-2xl font-bold text-slate-100">
+              Реляционный датасет корпуса (12 верифицированных локаций)
+            </h2>
+            <p class="text-xs text-slate-400 mt-0.5">
+              Нажмите на любую строку таблицы, чтобы перейти к локусу на интерактивной карте StoryMap.
+            </p>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-3">
+            <!-- Search Input -->
+            <div class="relative flex-1 sm:flex-initial">
+              <i class="fa-solid fa-magnifying-glass text-slate-500 text-xs absolute left-3 top-1/2 -translate-y-1/2"></i>
+              <input
+                type="text"
+                id="dataset-search-input"
+                oninput="renderDatasetTable()"
+                placeholder="Поиск по цитате, адресу, автору..."
+                class="w-full sm:w-64 bg-[#0B0F17] border border-white/[0.12] rounded-lg pl-8 pr-3 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-sky-400 transition-colors"
+              />
+            </div>
+
+            <!-- Export CSV Button -->
+            <button
+              onclick="exportDatasetCSV()"
+              class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-sky-500/15 hover:bg-sky-500/25 border border-sky-400/40 text-sky-300 text-xs font-medium transition-all cursor-pointer shadow-sm"
+            >
+              <i class="fa-solid fa-file-csv text-sm"></i>
+              <span>Экспортировать датасет в CSV (для StoryMapJS / Kepler.gl)</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Responsive Table Wrapper -->
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-[#0E1420] border-b border-white/[0.08] font-mono text-[11px] uppercase tracking-wider text-slate-400">
+                <th class="py-3 px-4">ID</th>
+                <th class="py-3 px-4">Локация</th>
+                <th class="py-3 px-4">Автор и произведение</th>
+                <th class="py-3 px-4">Адрес и WGS84</th>
+                <th class="py-3 px-4">Тип локуса</th>
+                <th class="py-3 px-4">Полюс аффекта</th>
+                <th class="py-3 px-4 min-w-[260px]">Цитата</th>
+              </tr>
+            </thead>
+            <tbody id="dataset-table-body" class="divide-y divide-white/[0.06] text-xs">
+              <!-- Populated dynamically via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- TAB 3: DH METHODOLOGY & CONCEPTUAL FRAMEWORK                        -->
+    <!-- =================================================================== -->
+    <section id="panel-methodology" class="tab-panel hidden flex-1 max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col gap-6">
+
+      <!-- Intro Banner -->
+      <div class="bg-[#121826] border border-white/[0.08] rounded-xl p-6 sm:p-8 relative overflow-hidden">
+        <div class="max-w-4xl">
+          <span class="font-mono text-xs uppercase tracking-widest text-amber-400">
+            Концептуальная рамка исследования • Digital Humanities
+          </span>
+          <h2 class="font-serif text-2xl sm:text-4xl font-bold text-slate-100 mt-2 leading-tight">
+            От бытового клише «депрессивного города» к картографии предельных эмоциональных состояний
+          </h2>
+          <p class="text-sm sm:text-base text-slate-300 mt-3 leading-relaxed">
+            Проект «Анатомия бессонницы» переводит классический «петербургский текст» русской литературы (1848–1912) в формат пространственно-аффективного датасета. Ночной Петербург рассматривается не как однородный меланхолический фон, а как сложная геометрия катализаторов человеческой психики.
+          </p>
+        </div>
+      </div>
+
+      <!-- Relational Data Model Diagram -->
+      <div class="bg-[#121826] border border-white/[0.08] rounded-xl p-6">
+        <div class="mb-4">
+          <span class="font-mono text-[11px] uppercase tracking-wider text-sky-400">Архитектура базы знаний</span>
+          <h3 class="font-serif text-2xl font-bold text-slate-100 mt-0.5">
+            Реляционная модель связывания данных («Локус / Событие»)
+          </h3>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-3 items-stretch">
+          <div class="bg-[#0B0F17] border border-white/[0.08] rounded-xl p-4 flex flex-col justify-between">
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-mono text-xs text-sky-400">01. ТЕКСТ</span>
+              <i class="fa-solid fa-quote-right text-slate-500"></i>
+            </div>
+            <h4 class="font-semibold text-sm text-slate-100">Художественная цитата</h4>
+            <p class="text-xs text-slate-400 mt-1">Фрагмент текста (Достоевский, Блок) с фиксацией времени суток и психического состояния героя.</p>
+          </div>
+
+          <div class="bg-[#0B0F17] border border-white/[0.08] rounded-xl p-4 flex flex-col justify-between">
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-mono text-xs text-amber-400">02. ГЕОДАННЫЕ</span>
+              <i class="fa-solid fa-location-crosshairs text-slate-500"></i>
+            </div>
+            <h4 class="font-semibold text-sm text-slate-100">Координата WGS84</h4>
+            <p class="text-xs text-slate-400 mt-1">Исторический адрес Петербурга, переведённый в широту и долготу, плюс типология локуса.</p>
+          </div>
+
+          <div class="bg-[#0B0F17] border border-white/[0.08] rounded-xl p-4 flex flex-col justify-between">
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-mono text-xs text-purple-400">03. ВИЗУАЛ</span>
+              <i class="fa-solid fa-landmark text-slate-500"></i>
+            </div>
+            <h4 class="font-semibold text-sm text-slate-100">Архивный образ</h4>
+            <p class="text-xs text-slate-400 mt-1">Исторический фотослой рубежа XIX–XX веков (PastVu) и реконструкция ночной световой среды.</p>
+          </div>
+
+          <div class="bg-[#0B0F17] border border-white/[0.08] rounded-xl p-4 flex flex-col justify-between">
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-mono text-xs text-rose-400">04. АФФЕКТ</span>
+              <i class="fa-solid fa-heart-pulse text-slate-500"></i>
+            </div>
+            <h4 class="font-semibold text-sm text-slate-100">Маркер аффекта</h4>
+            <p class="text-xs text-slate-400 mt-1">Классификация по трёхполюсной шкале: Экзальтация (#38BDF8), Паранойя (#F59E0B), Фатум (#F43F5E).</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3 Core Methodological Pillars Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+
+        <!-- Card 1: Hypothesis -->
+        <div class="bg-[#121826] border border-white/[0.08] rounded-xl p-6 flex flex-col gap-3">
+          <div class="w-10 h-10 rounded-lg bg-sky-500/10 border border-sky-400/30 flex items-center justify-center text-sky-400">
+            <i class="fa-solid fa-compass-drafting"></i>
+          </div>
+          <h3 class="font-serif text-2xl font-bold text-slate-100">
+            1. Проблематика и пространственная гипотеза
+          </h3>
+          <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+            Традиционное литературоведение описывает топографию Петербурга преимущественно вербально. Картографирование аффектов позволяет проверить гипотезу о прямой связи между архитектурой локуса и типом переживания:
+          </p>
+          <ul class="space-y-2 text-xs text-slate-300 mt-1">
+            <li class="flex items-start gap-2">
+              <span class="w-2 h-2 rounded-full bg-[#38BDF8] mt-1.5 shrink-0"></span>
+              <span><strong>Открытая вода</strong> провоцирует романтическую экзальтацию и духовный подъём («Белые ночи»), но в кризисные эпохи оборачивается метафизической бездной.</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="w-2 h-2 rounded-full bg-[#F59E0B] mt-1.5 shrink-0"></span>
+              <span><strong>Плотная застройка</strong> (доходные дома, дворы-колодцы Сенной) порождает удушье, лихорадку и паранойю («Преступление и наказание»).</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="w-2 h-2 rounded-full bg-[#F43F5E] mt-1.5 shrink-0"></span>
+              <span><strong>Окраины и транзитные узлы</strong> фиксируют ледяное отчуждение и экзистенциальный тупик (поэзия А. А. Блока).</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Card 2: Heritage & Digitalization -->
+        <div class="bg-[#121826] border border-white/[0.08] rounded-xl p-6 flex flex-col gap-3">
+          <div class="w-10 h-10 rounded-lg bg-amber-500/10 border border-amber-400/30 flex items-center justify-center text-amber-400">
+            <i class="fa-solid fa-layer-group"></i>
+          </div>
+          <h3 class="font-serif text-2xl font-bold text-slate-100">
+            2. Наследие краеведения и эффекты цифровизации
+          </h3>
+          <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+            Проект наследует классической школе петербургского литературного краеведения (труды <strong>Н. П. Анциферова</strong> «Душа Петербурга» и концепция «петербургского текста» <strong>В. Н. Топорова</strong>), дополняя её возможностями цифровой среды:
+          </p>
+          <ul class="space-y-2 text-xs text-slate-300 mt-1">
+            <li class="flex items-start gap-2">
+              <i class="fa-solid fa-check text-amber-400 mt-0.5"></i>
+              <span><strong>Нелинейность исследования:</strong> пользователь может двигаться не только вслед за сюжетом книги, но и фильтровать город по эмоциональному регистру или району.</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <i class="fa-solid fa-check text-amber-400 mt-0.5"></i>
+              <span><strong>Мультимедийный синтез:</strong> художественный текст, исторический образ и спутниковая геометрия улиц совмещены в едином окне.</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <i class="fa-solid fa-check text-amber-400 mt-0.5"></i>
+              <span><strong>Выявление кластеров:</strong> визуально обнаруживается сверхплотность аффективных точек в треугольнике Сенная — канал Грибоедова — Вознесенский мост.</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Card 3: Critical Limitations -->
+        <div class="bg-[#121826] border border-white/[0.08] rounded-xl p-6 flex flex-col gap-3">
+          <div class="w-10 h-10 rounded-lg bg-rose-500/10 border border-rose-400/30 flex items-center justify-center text-rose-400">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+          </div>
+          <h3 class="font-serif text-2xl font-bold text-slate-100">
+            3. Критические ограничения и рефлексия метода
+          </h3>
+          <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+            Академическая честность в Digital Humanities требует фиксировать не только возможности цифрового инструментария, но и неизбежные эпистемологические потери при формализации текста:
+          </p>
+          <ul class="space-y-2 text-xs text-slate-300 mt-1">
+            <li class="flex items-start gap-2">
+              <i class="fa-solid fa-minus text-rose-400 mt-0.5"></i>
+              <span><strong>Фрагментация художественного целого:</strong> роман и лирический цикл дробятся на дискретные карточки, ослабляя восприятие сквозной композиции текста.</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <i class="fa-solid fa-minus text-rose-400 mt-0.5"></i>
+              <span><strong>Схематизация психологизма:</strong> сведение амбивалентных чувств героев Достоевского к трём дискретным категориям неизбежно огрубляет оттенки переживаний.</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <i class="fa-solid fa-minus text-rose-400 mt-0.5"></i>
+              <span><strong>Условность точной GPS-привязки:</strong> литература оперирует собирательными образами («дом старухи», «неизвестная аптека»), тогда как ГИС требует точечных координат WGS84.</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Subtle Notification Toast (Replaces any alert/confirm) -->
+  <div
+    id="noir-toast"
+    class="fixed bottom-5 right-5 z-[9999] pointer-events-none opacity-0 translate-y-2 transition-all duration-300 bg-[#171F30] border border-white/15 text-slate-100 px-4 py-2.5 rounded-xl shadow-2xl flex items-center gap-2.5 text-xs font-medium"
+  >
+    <i id="noir-toast-icon" class="fa-solid fa-circle-check text-sky-400"></i>
+    <span id="noir-toast-text">Уведомление</span>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- APPLICATION LOGIC & VERIFIED 12-LOCUS CORPUS DATA                     -->
+  <!-- ===================================================================== -->
+  <script>
+    /**
+     * 1. VERIFIED CORPUS DATASET (12 LOCI, 1848–1912)
+     * Structured relational dataset matching the DH Concept Document.
+     */
+    const CORPUS_LOCI = [
+      {
+        id: 1,
+        code: "01",
+        title: "Встреча Мечтателя и Настеньки",
+        address: "Наб. канала Грибоедова (у Вознесенского моста)",
+        lat: 59.9281,
+        lng: 30.3126,
+        authorWork: "Ф. М. Достоевский, «Белые ночи» (1848)",
+        workKey: "white_nights",
+        year: 1848,
+        spaceType: "Открытая вода",
+        affectPole: "Экзальтация и надежда",
+        affectKey: "exaltation",
+        quote: "«Была чудная ночь, такая ночь, какая разве только и может быть тогда, когда мы молоды, любезный читатель. Небо было такое звездное, такое светлое небо...»",
+        commentary: "Точка завязки сентиментального ночного хронотопа. Открытая водная перспектива канала Грибоедова и прозрачность белой ночи снимают границу между одиноким внутренним миром Мечтателя и реальностью, порождая состояние романтической экзальтации."
+      },
+      {
+        id: 2,
+        code: "02",
+        title: "Свидание на Аничковом мосту",
+        address: "Аничков мост, Невский проспект",
+        lat: 59.9332,
+        lng: 30.3431,
+        authorWork: "Ф. М. Достоевский, «Белые ночи» (1848)",
+        workKey: "white_nights",
+        year: 1848,
+        spaceType: "Открытая вода",
+        affectPole: "Экзальтация и надежда",
+        affectKey: "exaltation",
+        quote: "«Мы подошли к Аничкову мосту... Вся душа моя переполнилась каким-то незнакомым, невыразимым восторгом и трепетом ожидания.»",
+        commentary: "Мост как пограничный локус соединения двух судеб. Парадный простор Невского проспекта и широкая гладь Фонтанки резонируют с пиком эмоционального подъёма героя: городская среда превращается в декорацию духовного пробуждения."
+      },
+      {
+        id: 3,
+        code: "03",
+        title: "Ночная прогулка вдоль Фонтанки",
+        address: "Наб. реки Фонтанки (у Обуховского моста)",
+        lat: 59.9218,
+        lng: 30.3189,
+        authorWork: "Ф. М. Достоевский, «Белые ночи» (1848)",
+        workKey: "white_nights",
+        year: 1848,
+        spaceType: "Открытая вода",
+        affectPole: "Экзальтация и надежда",
+        affectKey: "exaltation",
+        quote: "«Есть что-то неизъяснимо трогательное в нашей петербургской природе, когда она с наступлением весны вдруг выкажет всю мощь свою...»",
+        commentary: "Лирическое растворение субъекта в ландшафте весеннего ночного города. Вектор движения вдоль набережной Фонтанки демонстрирует устойчивую корреляцию между открытыми водными артериями и светлой меланхолией раннего Достоевского."
+      },
+      {
+        id: 4,
+        code: "04",
+        title: "Прощание у Кокушкина моста",
+        address: "Наб. канала Грибоедова (близ Кокушкина моста)",
+        lat: 59.9268,
+        lng: 30.3138,
+        authorWork: "Ф. М. Достоевский, «Белые ночи» (1848)",
+        workKey: "white_nights",
+        year: 1848,
+        spaceType: "Открытая вода",
+        affectPole: "Экзистенциальный тупик и фатум",
+        affectKey: "fate",
+        quote: "«Боже мой! Целая минута блаженства! Да разве этого мало хоть бы и на всю жизнь человеческую?..»",
+        commentary: "Резкая инверсия аффекта в той же топографической зоне: возвращение Настеньки к жениху превращает пространство надежды в точку смирения перед одиночеством. Геометрическая близость к точке встречи подчёркивает замкнутость круга иллюзий."
+      },
+      {
+        id: 5,
+        code: "05",
+        title: "Каморка Раскольникова в полночный жар",
+        address: "Гражданская ул., 19 (бывш. Средняя Мещанская)",
+        lat: 59.9278,
+        lng: 30.3114,
+        authorWork: "Ф. М. Достоевский, «Преступление и наказание» (1866)",
+        workKey: "crime_punishment",
+        year: 1866,
+        spaceType: "Плотная застройка",
+        affectPole: "Лихорадка, тревога и паранойя",
+        affectKey: "paranoia",
+        quote: "«Он метался в жару... В темноте улицы слышались только редкие крики пьяных, да изредка проезжал извозчик.»",
+        commentary: "Крайняя точка клаустрофобического сжатия пространства. Тесная мансарда под крышей доходного дома и ночной гул узкой Мещанской улицы физически давят на сознание героя, катализируя бредовую идею и лихорадочную паранойю."
+      },
+      {
+        id: 6,
+        code: "06",
+        title: "Ночная Сенная площадь и трактиры",
+        address: "Сенная площадь",
+        lat: 59.9271,
+        lng: 30.3185,
+        authorWork: "Ф. М. Достоевский, «Преступление и наказание» (1866)",
+        workKey: "crime_punishment",
+        year: 1866,
+        spaceType: "Окраины / транзитные зоны",
+        affectPole: "Лихорадка, тревога и паранойя",
+        affectKey: "paranoia",
+        quote: "«На улице стояла страшная духота, а сверх того толкотня, всюду известка, леса, кирпич, пыль и та особенная летняя вонь...»",
+        commentary: "Транзитный узел социального дна Петербурга. Сенная площадь функционирует как сенсорно перегруженный котёл: пыль, распивочные и толпа лишают героя уединения, усиливая чувство преследования и нервного истощения."
+      },
+      {
+        id: 7,
+        code: "07",
+        title: "Дом процентщицы и двор-колодец",
+        address: "Наб. канала Грибоедова, 104 / Средняя Подьяческая, 15",
+        lat: 59.9234,
+        lng: 30.3018,
+        authorWork: "Ф. М. Достоевский, «Преступление и наказание» (1866)",
+        workKey: "crime_punishment",
+        year: 1866,
+        spaceType: "Плотная застройка",
+        affectPole: "Лихорадка, тревога и паранойя",
+        affectKey: "paranoia",
+        quote: "«Сердце его билось так сильно, что, казалось, стук его отдается по всей темной, сырой и пустой лестнице.»",
+        commentary: "Архитектурная ловушка петербургского двора-колодца и чёрной лестницы. Замкнутая вертикаль каменных стен акустически и психологически изолирует персонажа в момент предельного страха и утраты самоконтроля."
+      },
+      {
+        id: 8,
+        code: "08",
+        title: "Последняя ночь Свидригайлова у Малой Невы",
+        address: "Тучков мост / Малая Нева",
+        lat: 59.9492,
+        lng: 30.2847,
+        authorWork: "Ф. М. Достоевский, «Преступление и наказание» (1866)",
+        workKey: "crime_punishment",
+        year: 1866,
+        spaceType: "Открытая вода",
+        affectPole: "Экзистенциальный тупик и фатум",
+        affectKey: "fate",
+        quote: "«Молочный густой туман лежал над рекой... Вода чернела, и в сыром холодном воздухе слышались тяжелые удары часов с крепости.»",
+        commentary: "Финальная граница экзистенциального распада. В отличие от светлой воды «Белых ночей», чёрная вода Малой Невы и непроницаемый туман у Тучкова моста воплощают метафизическое небытие и неотвратимость самоубийства."
+      },
+      {
+        id: 9,
+        code: "09",
+        title: "Та самая аптека на Петроградской стороне",
+        address: "Ул. Большая Зеленина, 44",
+        lat: 59.9632,
+        lng: 30.2936,
+        authorWork: "А. А. Блок, «Ночь, улица, фонарь, аптека» (1912)",
+        workKey: "blok",
+        year: 1912,
+        spaceType: "Окраины / транзитные зоны",
+        affectPole: "Экзистенциальный тупик и фатум",
+        affectKey: "fate",
+        quote: "«Ночь, улица, фонарь, аптека, / Бессмысленный и тусклый свет. / Живи еще хоть четверть века — / Всё будет так. Исхода нет.»",
+        commentary: "Эталонная формула вечного возвращения и экзистенциального тупика Серебряного века. Периферийный перекрёсток Петроградской стороны с тусклым фонарём превращается в замкнутую геометрическую петлю, из которой изъято само понятие будущего."
+      },
+      {
+        id: 10,
+        code: "10",
+        title: "Ночной мираж «Незнакомки» у станции",
+        address: "Озерки / северная ж/д окраина",
+        lat: 59.9725,
+        lng: 30.2580,
+        authorWork: "А. А. Блок, «Незнакомка» (цикл «Город», 1906)",
+        workKey: "blok",
+        year: 1906,
+        spaceType: "Окраины / транзитные зоны",
+        affectPole: "Экзальтация и надежда",
+        affectKey: "exaltation",
+        quote: "«И веют древними поверьями / Ее упругие шелка, / И шляпа с траурными перьями, / И в кольцах узкая рука.»",
+        commentary: "Прорыв трансцендентного восторга сквозь пошлость пригородного трактира и железнодорожной насыпи. Единственная точка полюса «Экзальтация и надежда» в корпусе XX века — но теперь она носит характер визионерского миража."
+      },
+      {
+        id: 11,
+        code: "11",
+        title: "Жёлтые окна на Обводном канале",
+        address: "Наб. Обводного канала / фабричный пояс",
+        lat: 59.9085,
+        lng: 30.3242,
+        authorWork: "А. А. Блок, «Фабрика» (цикл «Город», 1903)",
+        workKey: "blok",
+        year: 1903,
+        spaceType: "Окраины / транзитные зоны",
+        affectPole: "Лихорадка, тревога и паранойя",
+        affectKey: "paranoia",
+        quote: "«В соседнем доме окна жёлты. / По вечерам — по вечерам / Скрипят задумчивые болты, / Подходят люди к воротам.»",
+        commentary: "Индустриальный пояс южной окраины как источник социальной тревоги и параноидального напряжения. Зловещий жёлтый свет фабричных окон и скрежет запорных механизмов формируют атмосферу коллективного подавления и невидимой угрозы."
+      },
+      {
+        id: 12,
+        code: "12",
+        title: "Ледяная рябь канала у Благовещенского моста",
+        address: "Благовещенский мост (бывш. Николаевский)",
+        lat: 59.9348,
+        lng: 30.2896,
+        authorWork: "А. А. Блок, цикл «Город» (1904–1908)",
+        workKey: "blok",
+        year: 1906,
+        spaceType: "Открытая вода",
+        affectPole: "Экзистенциальный тупик и фатум",
+        affectKey: "fate",
+        quote: "«Ночь, ледяная рябь канала, / Аптека, улица, фонарь.»",
+        commentary: "Зеркальная инверсия начальной точки маршрута: вода, которая у раннего Достоевского (1848) дышала весной и надеждой, в поэтике Блока застывает в «ледяную рябь», замыкая кольцевую композицию ночного бессонного Петербурга."
+      }
+    ];
+
+    /**
+     * Affect Color & Styling Palette Configuration
+     */
+    const AFFECT_STYLES = {
+      exaltation: {
+        hex: "#38BDF8",
+        rgbaGlow: "rgba(56, 189, 248, 0.35)",
+        badgeBg: "bg-sky-500/15",
+        badgeText: "text-sky-300",
+        badgeBorder: "border-sky-400/35",
+        label: "Экзальтация и надежда"
+      },
+      paranoia: {
+        hex: "#F59E0B",
+        rgbaGlow: "rgba(245, 158, 11, 0.35)",
+        badgeBg: "bg-amber-500/15",
+        badgeText: "text-amber-300",
+        badgeBorder: "border-amber-400/35",
+        label: "Лихорадка, тревога и паранойя"
+      },
+      fate: {
+        hex: "#F43F5E",
+        rgbaGlow: "rgba(244, 63, 94, 0.35)",
+        badgeBg: "bg-rose-500/15",
+        badgeText: "text-rose-300",
+        badgeBorder: "border-rose-400/35",
+        label: "Экзистенциальный тупик и фатум"
+      }
+    };
+
+    /**
+     * Application State
+     */
+    const state = {
+      activeTab: "map",
+      affectFilter: "all",
+      workFilter: "all",
+      activeLocusId: 1,
+      showRoutes: true,
+      showHeatmap: true,
+      chartsInitialized: false
+    };
+
+    // Leaflet Map & Layer References
+    let map = null;
+    let markersLayer = null;
+    let routesLayer = null;
+    let heatmapLayer = null;
+    const markerRefs = {};
+
+    /**
+     * 2. INITIALIZATION ON WINDOW LOAD
+     */
+    window.addEventListener("DOMContentLoaded", () => {
+      initMap();
+      applyFiltersAndRender(false);
+      renderDatasetTable();
+      setupKeyboardNavigation();
+    });
+
+    /**
+     * Initialize Leaflet Map with CartoDB Dark Matter Tiles
+     */
+    function initMap() {
+      map = L.map("spb-map", {
+        center: [59.9386, 30.3141],
+        zoom: 12,
+        zoomControl: true
+      });
+
+      L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a> | DH SPb Corpus',
+        subdomains: "abcd",
+        maxZoom: 18
+      }).addTo(map);
+
+      heatmapLayer = L.layerGroup().addTo(map);
+      routesLayer = L.layerGroup().addTo(map);
+      markersLayer = L.layerGroup().addTo(map);
+    }
+
+    /**
+     * Get Filtered Loci based on active Affect & Work filters
+     */
+    function getFilteredLoci() {
+      return CORPUS_LOCI.filter(item => {
+        const matchAffect = state.affectFilter === "all" || item.affectKey === state.affectFilter;
+        const matchWork = state.workFilter === "all" || item.workKey === state.workFilter;
+        return matchAffect && matchWork;
+      });
+    }
+
+    /**
+     * Filter Handlers
+     */
+    function setAffectFilter(affectKey) {
+      state.affectFilter = affectKey;
+
+      // Update button visual states
+      document.querySelectorAll(".affect-filter-btn").forEach(btn => {
+        const key = btn.getAttribute("data-affect-btn");
+        if (key === affectKey) {
+          btn.className = "affect-filter-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-[#0B0F17] shadow-sm transition-all";
+        } else {
+          btn.className = "affect-filter-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-[#0B0F17]/70 text-slate-300 border border-white/[0.08] hover:border-white/25 transition-all";
+        }
+      });
+
+      applyFiltersAndRender(true);
+    }
+
+    function setWorkFilter(workKey) {
+      state.workFilter = workKey;
+      applyFiltersAndRender(true);
+    }
+
+    function resetAllFilters() {
+      state.affectFilter = "all";
+      state.workFilter = "all";
+      document.getElementById("work-filter-select").value = "all";
+      setAffectFilter("all");
+    }
+
+    function toggleMapLayers() {
+      state.showRoutes = document.getElementById("toggle-routes").checked;
+      state.showHeatmap = document.getElementById("toggle-heatmap").checked;
+      renderMapLayers(getFilteredLoci());
+    }
+
+    /**
+     * Master Synchronization Function: Updates Map Markers, Routes, Heatmap & StoryCard
+     */
+    function applyFiltersAndRender(shouldFly = true) {
+      const filtered = getFilteredLoci();
+
+      // Update counter badge on map
+      const countBadge = document.getElementById("visible-count-badge");
+      if (countBadge) {
+        countBadge.textContent = `${filtered.length} ${getRussianPlural(filtered.length, "точка", "точки", "точек")}`;
+      }
+
+      // Ensure activeLocusId belongs to filtered list if available
+      if (filtered.length > 0) {
+        const stillExists = filtered.some(l => l.id === state.activeLocusId);
+        if (!stillExists) {
+          state.activeLocusId = filtered[0].id;
+        }
+      }
+
+      renderMapLayers(filtered);
+      renderStoryCard(filtered);
+
+      if (shouldFly && filtered.length > 0) {
+        const active = filtered.find(l => l.id === state.activeLocusId);
+        if (active && map) {
+          map.flyTo([active.lat, active.lng], 13.5, { duration: 1.0 });
+        }
+      }
+    }
+
+    /**
+     * Render Leaflet Markers, Route Polylines, and Affect Heatmap Clusters
+     */
+    function renderMapLayers(filteredLoci) {
+      if (!map) return;
+
+      markersLayer.clearLayers();
+      routesLayer.clearLayers();
+      heatmapLayer.clearLayers();
+
+      // 1. Render Affect Heatmap Clusters (Spatial Density Zones)
+      if (state.showHeatmap && filteredLoci.length > 0) {
+        // Group overlapping/dense zones + individual aura circles
+        filteredLoci.forEach(locus => {
+          const style = AFFECT_STYLES[locus.affectKey];
+          // Outer soft atmospheric cluster halo
+          L.circle([locus.lat, locus.lng], {
+            radius: 520,
+            stroke: false,
+            fillColor: style.hex,
+            fillOpacity: 0.11,
+            interactive: false
+          }).addTo(heatmapLayer);
+
+          // Inner concentrated core halo
+          L.circle([locus.lat, locus.lng], {
+            radius: 210,
+            stroke: true,
+            color: style.hex,
+            weight: 1,
+            opacity: 0.22,
+            fillColor: style.hex,
+            fillOpacity: 0.16,
+            interactive: false
+          }).addTo(heatmapLayer);
+        });
+      }
+
+      // 2. Render Narrative Route Polylines grouped by Literary Work
+      if (state.showRoutes && filteredLoci.length > 1) {
+        const worksOrder = [
+          { key: "white_nights", color: "#38BDF8", dash: "6, 6" },
+          { key: "crime_punishment", color: "#F59E0B", dash: "5, 5" },
+          { key: "blok", color: "#F43F5E", dash: "4, 6" }
+        ];
+
+        worksOrder.forEach(w => {
+          const pts = filteredLoci
+            .filter(l => l.workKey === w.key)
+            .map(l => [l.lat, l.lng]);
+
+          if (pts.length > 1) {
+            L.polyline(pts, {
+              color: w.color,
+              weight: 2.2,
+              opacity: 0.55,
+              dashArray: w.dash,
+              lineJoin: "round"
+            }).addTo(routesLayer);
+          }
+        });
+      }
+
+      // 3. Render Custom Glowing SVG/CSS Markers
+      filteredLoci.forEach(locus => {
+        const style = AFFECT_STYLES[locus.affectKey];
+        const isActive = locus.id === state.activeLocusId;
+
+        const iconHtml = `
+          <div class="locus-marker-wrapper ${isActive ? "is-active" : ""}">
+            <div class="locus-pulse-ring" style="background: ${style.hex};"></div>
+            <div
+              class="locus-marker-core"
+              style="background: ${style.hex}; box-shadow: 0 0 ${isActive ? "20px" : "12px"} ${style.hex};"
+            >
+              ${locus.code}
+            </div>
+          </div>
+        `;
+
+        const customIcon = L.divIcon({
+          html: iconHtml,
+          className: "",
+          iconSize: [34, 34],
+          iconAnchor: [17, 17]
+        });
+
+        const marker = L.marker([locus.lat, locus.lng], {
+          icon: customIcon,
+          zIndexOffset: isActive ? 1000 : 100
+        });
+
+        marker.bindTooltip(
+          `<div class="font-semibold text-slate-100">${locus.code}. ${locus.title}</div>
+           <div class="text-[11px] text-slate-400 mt-0.5">${locus.affectPole}</div>`,
+          { direction: "top", offset: [0, -14], className: "noir-tooltip" }
+        );
+
+        marker.on("click", () => {
+          selectLocus(locus.id, true);
+        });
+
+        marker.addTo(markersLayer);
+        markerRefs[locus.id] = marker;
+      });
+    }
+
+    /**
+     * Select Specific Locus by ID
+     */
+    function selectLocus(locusId, fly = true) {
+      state.activeLocusId = locusId;
+      const filtered = getFilteredLoci();
+      const target = CORPUS_LOCI.find(l => l.id === locusId);
+
+      renderMapLayers(filtered);
+      renderStoryCard(filtered);
+
+      if (fly && target && map) {
+        map.flyTo([target.lat, target.lng], 14, {
+          duration: 1.15,
+          easeLinearity: 0.25
+        });
+      }
+    }
+
+    /**
+     * Step-by-step Prev / Next Navigation
+     */
+    function navigateLocus(direction) {
+      const filtered = getFilteredLoci();
+      if (filtered.length === 0) return;
+
+      const currentIdx = filtered.findIndex(l => l.id === state.activeLocusId);
+      let nextIdx = currentIdx + direction;
+
+      if (nextIdx < 0) nextIdx = filtered.length - 1;
+      if (nextIdx >= filtered.length) nextIdx = 0;
+
+      selectLocus(filtered[nextIdx].id, true);
+    }
+
+    function resetMapOverview() {
+      if (!map) return;
+      map.flyTo([59.9386, 30.3141], 12, { duration: 1.0 });
+    }
+
+    /**
+     * Render Right-Side StoryMap Reader Card
+     */
+    function renderStoryCard(filteredLoci) {
+      const readerBody = document.getElementById("storymap-reader-body");
+      const counterEl = document.getElementById("locus-step-counter");
+      const dotsStrip = document.getElementById("locus-dots-strip");
+      const prevBtn = document.getElementById("btn-prev-locus");
+      const nextBtn = document.getElementById("btn-next-locus");
+
+      if (filteredLoci.length === 0) {
+        counterEl.textContent = "0 из 0";
+        prevBtn.disabled = true;
+        nextBtn.disabled = true;
+        dotsStrip.innerHTML = "";
+        readerBody.innerHTML = `
+          <div class="flex-1 flex flex-col items-center justify-center text-center py-12 px-4">
+            <div class="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 mb-3">
+              <i class="fa-solid fa-filter-circle-xmark text-lg"></i>
+            </div>
+            <h3 class="font-serif text-xl font-bold text-slate-200">Нет локусов по выбранному фильтру</h3>
+            <p class="text-xs text-slate-400 max-w-xs mt-1.5">
+              Попробуйте изменить сочетание полюса аффекта и литературного произведения.
+            </p>
+            <button
+              onclick="resetAllFilters()"
+              class="mt-4 px-4 py-2 rounded-lg bg-sky-500/20 hover:bg-sky-500/30 border border-sky-400/40 text-sky-300 text-xs font-medium transition-colors"
+            >
+              Сбросить все фильтры
+            </button>
+          </div>
+        `;
+        return;
+      }
+
+      prevBtn.disabled = filteredLoci.length <= 1;
+      nextBtn.disabled = filteredLoci.length <= 1;
+
+      const currentIndex = filteredLoci.findIndex(l => l.id === state.activeLocusId);
+      const locus = filteredLoci[currentIndex >= 0 ? currentIndex : 0];
+      const style = AFFECT_STYLES[locus.affectKey];
+
+      counterEl.textContent = `Локус ${currentIndex + 1} из ${filteredLoci.length}`;
+
+      // Render progress dot strip
+      dotsStrip.innerHTML = filteredLoci.map(item => {
+        const itemStyle = AFFECT_STYLES[item.affectKey];
+        const active = item.id === locus.id;
+        return `
+          <button
+            onclick="selectLocus(${item.id}, true)"
+            title="${item.code}. ${item.title}"
+            class="h-2 rounded-full transition-all cursor-pointer ${active ? "w-5" : "w-2 opacity-45 hover:opacity-90"}"
+            style="background-color: ${itemStyle.hex};"
+          ></button>
+        `;
+      }).join("");
+
+      // Format WGS84 string cleanly
+      const wgsText = `${locus.lat.toFixed(4)}° N, ${locus.lng.toFixed(4)}° E`;
+      const rawCoords = `${locus.lat.toFixed(4)}, ${locus.lng.toFixed(4)}`;
+
+      // Generate bespoke Nocturnal Petersburg Vector Engraving SVG
+      const engravingSvg = generateLocusEngravingSVG(locus.spaceType, style.hex, locus.code);
+
+      readerBody.innerHTML = `
+        <!-- Bespoke Atmospheric Vector Engraving -->
+        <div class="relative rounded-xl overflow-hidden border border-white/[0.08] bg-[#080B12] shrink-0">
+          ${engravingSvg}
+          <div class="absolute top-2.5 left-2.5 flex items-center gap-1.5">
+            <span class="font-mono text-[10px] font-semibold px-2 py-0.5 rounded bg-[#0B0F17]/85 backdrop-blur-md border border-white/15 text-slate-200">
+              ID #${locus.code}
+            </span>
+            <span class="text-[11px] font-medium px-2.5 py-0.5 rounded bg-[#0B0F17]/85 backdrop-blur-md border border-white/15 text-slate-300">
+              ${locus.spaceType}
+            </span>
+          </div>
+          <div class="absolute bottom-2.5 right-2.5">
+            <span class="inline-flex items-center gap-1.5 text-[11px] font-medium px-2.5 py-0.5 rounded-full bg-[#0B0F17]/90 backdrop-blur-md border ${style.badgeBorder} ${style.badgeText}">
+              <span class="w-1.5 h-1.5 rounded-full" style="background:${style.hex};"></span>
+              ${locus.affectPole}
+            </span>
+          </div>
+        </div>
+
+        <!-- Locus Title & Author -->
+        <div>
+          <div class="text-xs font-medium text-slate-400 mb-1 flex items-center gap-1.5">
+            <i class="fa-solid fa-feather-pointed text-[11px]" style="color:${style.hex};"></i>
+            <span>${locus.authorWork}</span>
+          </div>
+          <h2 class="font-serif text-2xl sm:text-[26px] font-bold text-white leading-snug">
+            ${locus.title}
+          </h2>
+        </div>
+
+        <!-- Metadata Box: Address & WGS84 Coordinates -->
+        <div class="bg-[#0B0F17]/90 border border-white/[0.08] rounded-xl p-3 flex flex-col gap-2 text-xs">
+          <div class="flex items-start justify-between gap-2">
+            <div class="flex items-start gap-2 text-slate-300">
+              <i class="fa-solid fa-location-dot mt-0.5 text-slate-400"></i>
+              <span>${locus.address}</span>
+            </div>
+          </div>
+          <div class="flex items-center justify-between gap-2 pt-1.5 border-t border-white/[0.06]">
+            <div class="flex items-center gap-2 font-mono text-[11px] text-slate-400">
+              <span class="text-slate-500">WGS84:</span>
+              <span class="text-slate-200">${wgsText}</span>
+            </div>
+            <button
+              onclick="copyCoordinates('${rawCoords}')"
+              title="Скопировать координаты"
+              class="inline-flex items-center gap-1 font-mono text-[10px] px-2 py-0.5 rounded bg-white/[0.05] hover:bg-white/[0.12] text-slate-300 transition-colors cursor-pointer"
+            >
+              <i class="fa-regular fa-copy"></i>
+              <span>Копировать</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Literary Quote Block -->
+        <div class="relative bg-[#0E1420] border-l-2 rounded-r-xl p-4" style="border-color: ${style.hex};">
+          <blockquote class="literary-quote text-lg sm:text-[19px] text-slate-100">
+            ${locus.quote}
+          </blockquote>
+        </div>
+
+        <!-- DH Interpretation Block -->
+        <div class="bg-[#0B0F17]/60 border border-white/[0.07] rounded-xl p-3.5">
+          <div class="flex items-center gap-2 mb-1.5">
+            <i class="fa-solid fa-microscope text-xs" style="color:${style.hex};"></i>
+            <h3 class="font-mono text-[11px] uppercase tracking-wider font-semibold text-slate-300">
+              DH-интерпретация локуса
+            </h3>
+          </div>
+          <p class="text-xs sm:text-[13px] text-slate-300 leading-relaxed">
+            ${locus.commentary}
+          </p>
+        </div>
+      `;
+    }
+
+    /**
+     * Bespoke SVG Engraving Generator for Nocturnal Petersburg Space Types
+     * Eliminates external image dependencies while providing museum-grade aesthetics.
+     */
+    function generateLocusEngravingSVG(spaceType, accentHex, code) {
+      const gradId = `skyGrad-${code}`;
+      const glowId = `lanternGlow-${code}`;
+      const hatchId = `hatchPattern-${code}`;
+
+      const commonDefs = `
+        <defs>
+          <linearGradient id="${gradId}" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#070A12" />
+            <stop offset="55%" stop-color="#11192B" />
+            <stop offset="100%" stop-color="#0B0F17" />
+          </linearGradient>
+          <radialGradient id="${glowId}" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="${accentHex}" stop-opacity="0.48" />
+            <stop offset="55%" stop-color="${accentHex}" stop-opacity="0.14" />
+            <stop offset="100%" stop-color="${accentHex}" stop-opacity="0" />
+          </radialGradient>
+          <pattern id="${hatchId}" width="6" height="6" patternTransform="rotate(35 0 0)" patternUnits="userSpaceOnUse">
+            <line x1="0" y1="0" x2="0" y2="6" stroke="rgba(255,255,255,0.04)" stroke-width="1" />
+          </pattern>
+        </defs>
+      `;
+
+      // Scene 1: Open Water (Набережная / Мост / Петропавловский шпиль)
+      if (spaceType === "Открытая вода") {
+        return `
+          <svg viewBox="0 0 640 190" class="w-full h-40 sm:h-44 block" xmlns="http://www.w3.org/2000/svg">
+            ${commonDefs}
+            <rect width="640" height="190" fill="url(#${gradId})" />
+            <rect width="640" height="190" fill="url(#${hatchId})" />
+
+            <!-- Moon / White Night Orb -->
+            <circle cx="470" cy="48" r="56" fill="url(#${glowId})" />
+            <circle cx="470" cy="48" r="13" fill="${accentHex}" fill-opacity="0.85" />
+            <circle cx="465" cy="44" r="11" fill="#0B111E" />
+
+            <!-- Distant Peter & Paul Spire Silhouette -->
+            <g fill="#0A0E17" stroke="rgba(255,255,255,0.08)" stroke-width="0.7">
+              <rect x="135" y="96" width="54" height="24" />
+              <polygon points="154,96 162,24 170,96" />
+              <line x1="162" y1="12" x2="162" y2="24" stroke="${accentHex}" stroke-opacity="0.6" stroke-width="1.2" />
+              <ellipse cx="115" cy="105" rx="14" ry="11" />
+              <rect x="92" y="106" width="120" height="14" />
+            </g>
+
+            <!-- Arched Petersburg Bridge -->
+            <path d="M 0 120 Q 320 92 640 120 L 640 132 Q 320 106 0 132 Z" fill="#131B2E" stroke="rgba(255,255,255,0.14)" stroke-width="1" />
+            <!-- Bridge Iron Railings & Lantern Posts -->
+            <path d="M 10 116 Q 320 88 630 116" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1" stroke-dasharray="3,4" />
+            <g stroke="${accentHex}" stroke-width="1.2">
+              <line x1="215" y1="103" x2="215" y2="85" />
+              <circle cx="215" cy="83" r="2.5" fill="${accentHex}" />
+              <line x1="425" y1="103" x2="425" y2="85" />
+              <circle cx="425" cy="83" r="2.5" fill="${accentHex}" />
+            </g>
+
+            <!-- Dark Canal / Neva Water & Shimmering Reflections -->
+            <rect x="0" y="124" width="640" height="66" fill="#070B13" />
+            <ellipse cx="470" cy="154" rx="85" ry="22" fill="url(#${glowId})" />
+            <g stroke="${accentHex}" stroke-linecap="round" opacity="0.55">
+              <line x1="445" y1="136" x2="495" y2="136" stroke-width="1.5" />
+              <line x1="435" y1="145" x2="505" y2="145" stroke-width="1.2" />
+              <line x1="450" y1="155" x2="490" y2="155" stroke-width="1.6" />
+              <line x1="440" y1="166" x2="500" y2="166" stroke-width="1" />
+              <line x1="205" y1="142" x2="225" y2="142" stroke-width="1" opacity="0.5" />
+              <line x1="415" y1="142" x2="435" y2="142" stroke-width="1" opacity="0.5" />
+            </g>
+          </svg>
+        `;
+      }
+
+      // Scene 2: Dense Tenement Core (Двор-колодец / Доходные дома)
+      if (spaceType === "Плотная застройка") {
+        return `
+          <svg viewBox="0 0 640 190" class="w-full h-40 sm:h-44 block" xmlns="http://www.w3.org/2000/svg">
+            ${commonDefs}
+            <rect width="640" height="190" fill="url(#${gradId})" />
+            <rect width="640" height="190" fill="url(#${hatchId})" />
+
+            <!-- Narrow Sky Slice Between Towering Tenement Walls -->
+            <rect x="230" y="0" width="180" height="190" fill="#0D1424" />
+            <circle cx="320" cy="34" r="2" fill="#E2E8F0" opacity="0.6" />
+            <circle cx="285" cy="22" r="1.3" fill="#E2E8F0" opacity="0.4" />
+            <circle cx="355" cy="48" r="1.5" fill="#E2E8F0" opacity="0.5" />
+
+            <!-- Left & Right Looming St. Petersburg Tenement Facades -->
+            <polygon points="0,0 245,0 265,190 0,190" fill="#0A0E18" stroke="rgba(255,255,255,0.1)" stroke-width="1" />
+            <polygon points="640,0 395,0 375,190 640,190" fill="#0A0E18" stroke="rgba(255,255,255,0.1)" stroke-width="1" />
+
+            <!-- Center Courtyard Archway (Подворотня) -->
+            <rect x="262" y="72" width="116" height="118" fill="#0F1626" stroke="rgba(255,255,255,0.08)" />
+            <path d="M 294 190 L 294 138 A 26 26 0 0 1 346 138 L 346 190 Z" fill="#05070C" stroke="rgba(255,255,255,0.12)" />
+
+            <!-- Glowing Mansard / Staircase Windows -->
+            <circle cx="204" cy="46" r="46" fill="url(#${glowId})" />
+            <rect x="194" y="34" width="18" height="26" rx="1" fill="${accentHex}" fill-opacity="0.85" />
+            <line x1="203" y1="34" x2="203" y2="60" stroke="#0B0F17" stroke-width="1.2" />
+            <line x1="194" y1="45" x2="212" y2="45" stroke="#0B0F17" stroke-width="1.2" />
+
+            <!-- Secondary Dim Windows Grid -->
+            <g fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.08)" stroke-width="0.7">
+              <rect x="145" y="34" width="18" height="26" />
+              <rect x="145" y="82" width="18" height="28" />
+              <rect x="194" y="82" width="18" height="28" />
+              <rect x="426" y="42" width="18" height="26" />
+              <rect x="476" y="42" width="18" height="26" />
+              <rect x="426" y="90" width="18" height="28" />
+            </g>
+
+            <!-- Steep Perspective Lines of Courtyard -->
+            <line x1="245" y1="0" x2="265" y2="190" stroke="rgba(255,255,255,0.14)" stroke-width="1" />
+            <line x1="395" y1="0" x2="375" y2="190" stroke="rgba(255,255,255,0.14)" stroke-width="1" />
+          </svg>
+        `;
+      }
+
+      // Scene 3: Peripheries / Transit Zones (Фонарь, аптека, фабричная окраина)
+      return `
+        <svg viewBox="0 0 640 190" class="w-full h-40 sm:h-44 block" xmlns="http://www.w3.org/2000/svg">
+          ${commonDefs}
+          <rect width="640" height="190" fill="url(#${gradId})" />
+          <rect width="640" height="190" fill="url(#${hatchId})" />
+
+          <!-- Distant Industrial / Peripheral Skyline -->
+          <g fill="#0A0E17" stroke="rgba(255,255,255,0.07)" stroke-width="0.8">
+            <rect x="40" y="86" width="130" height="68" />
+            <polygon points="35,86 105,64 175,86" />
+            <rect x="455" y="74" width="145" height="80" />
+            <!-- Smokestacks / Telegraph -->
+            <rect x="515" y="34" width="10" height="40" />
+            <rect x="548" y="44" width="8" height="30" />
+          </g>
+
+          <!-- Telegraph Wires Across Night Sky -->
+          <path d="M 0 44 Q 320 74 640 38" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.9" />
+          <path d="M 0 54 Q 320 84 640 48" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="0.8" />
+
+          <!-- Cobblestone Street Horizon -->
+          <rect x="0" y="152" width="640" height="38" fill="#080B12" stroke-top="rgba(255,255,255,0.1)" />
+          <line x1="0" y1="152" x2="640" y2="152" stroke="rgba(255,255,255,0.14)" stroke-width="1" />
+
+          <!-- Volumetric Cone of Streetlamp Light -->
+          <polygon points="320,56 215,168 425,168" fill="url(#${glowId})" />
+          <ellipse cx="320" cy="166" rx="95" ry="12" fill="${accentHex}" fill-opacity="0.16" />
+
+          <!-- Cast-Iron Petersburg Gas Streetlamp -->
+          <g>
+            <rect x="314" y="144" width="12" height="12" fill="#161E31" />
+            <line x1="320" y1="62" x2="320" y2="146" stroke="#1E293B" stroke-width="3.2" />
+            <line x1="311" y1="74" x2="329" y2="74" stroke="#334155" stroke-width="1.5" />
+            <!-- Lantern Glass Head -->
+            <polygon points="313,48 327,48 324,62 316,62" fill="${accentHex}" fill-opacity="0.92" />
+            <polygon points="311,48 329,48 320,40" fill="#1E293B" />
+            <circle cx="320" cy="54" r="24" fill="url(#${glowId})" />
+          </g>
+
+          <!-- Pharmacy / Corner Window Glow -->
+          <rect x="82" y="106" width="44" height="24" rx="2" fill="${accentHex}" fill-opacity="0.18" stroke="${accentHex}" stroke-opacity="0.45" stroke-width="0.9" />
+          <line x1="104" y1="112" x2="104" y2="124" stroke="${accentHex}" stroke-width="1.5" opacity="0.7" />
+          <line x1="98" y1="118" x2="110" y2="118" stroke="${accentHex}" stroke-width="1.5" opacity="0.7" />
+        </svg>
+      `;
+    }
+
+    /**
+     * 3. TAB SWITCHING LOGIC
+     */
+    function switchTab(tabName) {
+      state.activeTab = tabName;
+
+      // Hide all panels
+      document.querySelectorAll(".tab-panel").forEach(panel => {
+        panel.classList.add("hidden");
+      });
+
+      // Reset all tab buttons
+      document.querySelectorAll(".tab-nav-btn").forEach(btn => {
+        btn.classList.remove("border-sky-400", "text-white");
+        btn.classList.add("border-transparent", "text-slate-400");
+      });
+
+      // Activate target panel & button
+      const activePanel = document.getElementById(`panel-${tabName}`);
+      const activeBtn = document.getElementById(`tab-btn-${tabName}`);
+
+      if (activePanel) activePanel.classList.remove("hidden");
+      if (activeBtn) {
+        activeBtn.classList.remove("border-transparent", "text-slate-400");
+        activeBtn.classList.add("border-sky-400", "text-white");
+      }
+
+      // Trigger specific lifecycle hooks
+      if (tabName === "map" && map) {
+        setTimeout(() => {
+          map.invalidateSize();
+        }, 60);
+      } else if (tabName === "analytics" && !state.chartsInitialized) {
+        initAnalyticsCharts();
+        state.chartsInitialized = true;
+      }
+    }
+
+    /**
+     * 4. ANALYTICS CHARTS (CHART.JS)
+     */
+    function initAnalyticsCharts() {
+      Chart.defaults.color = "#94A3B8";
+      Chart.defaults.font.family = "'Inter', sans-serif";
+
+      // Chart 1: Affect Distribution by Urban Space Type
+      const ctxSpace = document.getElementById("chart-space-types").getContext("2d");
+      new Chart(ctxSpace, {
+        type: "bar",
+        data: {
+          labels: [
+            "Открытая вода (6)",
+            "Плотная застройка (2)",
+            "Окраины / транзитные зоны (4)"
+          ],
+          datasets: [
+            {
+              label: "Экзальтация и надежда",
+              data: [3, 0, 1],
+              backgroundColor: "rgba(56, 189, 248, 0.85)",
+              borderColor: "#38BDF8",
+              borderWidth: 1,
+              borderRadius: 4
+            },
+            {
+              label: "Лихорадка и паранойя",
+              data: [0, 2, 2],
+              backgroundColor: "rgba(245, 158, 11, 0.85)",
+              borderColor: "#F59E0B",
+              borderWidth: 1,
+              borderRadius: 4
+            },
+            {
+              label: "Тупик и фатум",
+              data: [3, 0, 1],
+              backgroundColor: "rgba(244, 63, 94, 0.85)",
+              borderColor: "#F43F5E",
+              borderWidth: 1,
+              borderRadius: 4
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: "bottom",
+              labels: { boxWidth: 12, padding: 14, font: { size: 11 } }
+            },
+            tooltip: {
+              backgroundColor: "#0B0F17",
+              borderColor: "rgba(255,255,255,0.15)",
+              borderWidth: 1,
+              padding: 10
+            }
+          },
+          scales: {
+            x: {
+              stacked: true,
+              grid: { display: false },
+              ticks: { font: { size: 11 } }
+            },
+            y: {
+              stacked: true,
+              beginAtZero: true,
+              ticks: { stepSize: 1, font: { size: 11 } },
+              grid: { color: "rgba(255, 255, 255, 0.06)" }
+            }
+          }
+        }
+      });
+
+      // Chart 2: Chronological Evolution (1848 -> 1866 -> 1903-1912)
+      const ctxChrono = document.getElementById("chart-chronology").getContext("2d");
+      new Chart(ctxChrono, {
+        type: "line",
+        data: {
+          labels: [
+            "1848: «Белые ночи»",
+            "1866: «Преступление и наказание»",
+            "1903–1912: Лирика А. Блока"
+          ],
+          datasets: [
+            {
+              label: "Экзальтация и надежда",
+              data: [3, 0, 1],
+              borderColor: "#38BDF8",
+              backgroundColor: "rgba(56, 189, 248, 0.15)",
+              pointBackgroundColor: "#38BDF8",
+              pointRadius: 5,
+              borderWidth: 2.5,
+              tension: 0.3,
+              fill: true
+            },
+            {
+              label: "Лихорадка и паранойя",
+              data: [0, 3, 1],
+              borderColor: "#F59E0B",
+              backgroundColor: "rgba(245, 158, 11, 0.15)",
+              pointBackgroundColor: "#F59E0B",
+              pointRadius: 5,
+              borderWidth: 2.5,
+              tension: 0.3,
+              fill: true
+            },
+            {
+              label: "Тупик и фатум",
+              data: [1, 1, 2],
+              borderColor: "#F43F5E",
+              backgroundColor: "rgba(244, 63, 94, 0.15)",
+              pointBackgroundColor: "#F43F5E",
+              pointRadius: 5,
+              borderWidth: 2.5,
+              tension: 0.3,
+              fill: true
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: "bottom",
+              labels: { boxWidth: 12, padding: 14, font: { size: 11 } }
+            },
+            tooltip: {
+              backgroundColor: "#0B0F17",
+              borderColor: "rgba(255,255,255,0.15)",
+              borderWidth: 1,
+              padding: 10
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: "rgba(255, 255, 255, 0.04)" },
+              ticks: { font: { size: 11 } }
+            },
+            y: {
+              beginAtZero: true,
+              max: 4,
+              ticks: { stepSize: 1, font: { size: 11 } },
+              grid: { color: "rgba(255, 255, 255, 0.06)" }
+            }
+          }
+        }
+      });
+    }
+
+    /**
+     * 5. SEARCHABLE DATASET TABLE & JUMP-TO-MAP ACTION
+     */
+    function renderDatasetTable() {
+      const tbody = document.getElementById("dataset-table-body");
+      const query = (document.getElementById("dataset-search-input")?.value || "").trim().toLowerCase();
+
+      const rows = CORPUS_LOCI.filter(item => {
+        if (!query) return true;
+        return (
+          item.title.toLowerCase().includes(query) ||
+          item.address.toLowerCase().includes(query) ||
+          item.authorWork.toLowerCase().includes(query) ||
+          item.spaceType.toLowerCase().includes(query) ||
+          item.affectPole.toLowerCase().includes(query) ||
+          item.quote.toLowerCase().includes(query)
+        );
+      });
+
+      if (rows.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" class="py-8 text-center text-slate-400">
+              По запросу «${escapeHtml(query)}» записей в корпусе не найдено.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = rows.map(item => {
+        const style = AFFECT_STYLES[item.affectKey];
+        return `
+          <tr
+            onclick="openLocusFromTable(${item.id})"
+            title="Нажмите, чтобы открыть точку на карте"
+            class="hover:bg-[#171F30] transition-colors cursor-pointer group"
+          >
+            <td class="py-3.5 px-4 font-mono text-slate-400 group-hover:text-white">
+              #${item.code}
+            </td>
+            <td class="py-3.5 px-4 font-semibold text-slate-100 group-hover:text-sky-300 transition-colors">
+              ${item.title}
+            </td>
+            <td class="py-3.5 px-4 text-slate-300">
+              ${item.authorWork}
+            </td>
+            <td class="py-3.5 px-4">
+              <div class="text-slate-300">${item.address}</div>
+              <div class="font-mono text-[10px] text-slate-500 mt-0.5">${item.lat.toFixed(4)}, ${item.lng.toFixed(4)}</div>
+            </td>
+            <td class="py-3.5 px-4">
+              <span class="inline-block px-2 py-0.5 rounded bg-white/[0.05] border border-white/[0.08] text-slate-300 whitespace-nowrap">
+                ${item.spaceType}
+              </span>
+            </td>
+            <td class="py-3.5 px-4">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border ${style.badgeBg} ${style.badgeBorder} ${style.badgeText} whitespace-nowrap">
+                <span class="w-1.5 h-1.5 rounded-full" style="background:${style.hex};"></span>
+                ${item.affectPole}
+              </span>
+            </td>
+            <td class="py-3.5 px-4 font-serif italic text-sm text-slate-300 leading-snug">
+              ${item.quote}
+            </td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function openLocusFromTable(locusId) {
+      // Ensure filters allow viewing this locus
+      state.affectFilter = "all";
+      state.workFilter = "all";
+      document.getElementById("work-filter-select").value = "all";
+      setAffectFilter("all");
+
+      switchTab("map");
+      setTimeout(() => {
+        selectLocus(locusId, true);
+      }, 120);
+    }
+
+    /**
+     * 6. REAL UTF-8 WITH BOM CSV EXPORT (FOR STORYMAPJS / KEPLER.GL)
+     */
+    function exportDatasetCSV() {
+      const headers = [
+        "ID",
+        "Location",
+        "Address",
+        "Latitude",
+        "Longitude",
+        "Author_Work",
+        "Year",
+        "Space_Type",
+        "Affect_Pole",
+        "Quote",
+        "DH_Commentary"
+      ];
+
+      const escapeCSV = (val) => {
+        const str = String(val ?? "").replace(/"/g, '""');
+        return `"${str}"`;
+      };
+
+      const csvLines = [
+        headers.join(","),
+        ...CORPUS_LOCI.map(item => [
+          escapeCSV(item.code),
+          escapeCSV(item.title),
+          escapeCSV(item.address),
+          escapeCSV(item.lat.toFixed(4)),
+          escapeCSV(item.lng.toFixed(4)),
+          escapeCSV(item.authorWork),
+          escapeCSV(item.year),
+          escapeCSV(item.spaceType),
+          escapeCSV(item.affectPole),
+          escapeCSV(item.quote),
+          escapeCSV(item.commentary)
+        ].join(","))
+      ];
+
+      // Prepend UTF-8 BOM (\uFEFF) so Excel, StoryMapJS, and Kepler.gl open Cyrillic flawlessly
+      const csvContent = "\uFEFF" + csvLines.join("\r\n");
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "anatomy_of_insomnia_spb_1848_1912.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      showToast("CSV-датасет (12 локусов, UTF-8 BOM) успешно скачан");
+    }
+
+    /**
+     * 7. UTILITY HELPERS (CLIPBOARD, KEYBOARD, TOAST, PLURALIZATION)
+     */
+    function copyCoordinates(coordString) {
+      const tempInput = document.createElement("textarea");
+      tempInput.value = coordString;
+      tempInput.style.position = "fixed";
+      tempInput.style.opacity = "0";
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      try {
+        document.execCommand("copy");
+        showToast(`Координаты WGS84 скопированы: ${coordString}`);
+      } catch (err) {
+        showToast("Не удалось скопировать координаты");
+      }
+      document.body.removeChild(tempInput);
+    }
+
+    function setupKeyboardNavigation() {
+      window.addEventListener("keydown", (e) => {
+        if (state.activeTab !== "map") return;
+        const tag = document.activeElement?.tagName;
+        if (tag === "INPUT" || tag === "SELECT" || tag === "TEXTAREA") return;
+
+        if (e.key === "ArrowLeft") {
+          e.preventDefault();
+          navigateLocus(-1);
+        } else if (e.key === "ArrowRight") {
+          e.preventDefault();
+          navigateLocus(1);
+        }
+      });
+    }
+
+    let toastTimer = null;
+    function showToast(message) {
+      const toast = document.getElementById("noir-toast");
+      const textEl = document.getElementById("noir-toast-text");
+      if (!toast || !textEl) return;
+
+      textEl.textContent = message;
+      toast.classList.remove("opacity-0", "translate-y-2");
+      toast.classList.add("opacity-100", "translate-y-0");
+
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        toast.classList.remove("opacity-100", "translate-y-0");
+        toast.classList.add("opacity-0", "translate-y-2");
+      }, 2800);
+    }
+
+    function getRussianPlural(n, one, few, many) {
+      const mod10 = n % 10;
+      const mod100 = n % 100;
+      if (mod10 === 1 && mod100 !== 11) return one;
+      if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return few;
+      return many;
+    }
+
+    function escapeHtml(str) {
+      return str
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+  </script>
+</body>
+</html>
