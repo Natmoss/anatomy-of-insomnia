@@ -51,9 +51,6 @@
       }
     };
   </script>
-.leaflet-tile-pane {
-    filter: invert(100%) hue-rotate(180deg) brightness(85%) contrast(110%) saturate(40%);
-}
   <style>
     /* Base Nocturnal Petersburg Noir Styling */
     html, body {
@@ -80,6 +77,44 @@
     }
 
     /* Leaflet Container & Dark Noir Integration */
+    </script>
+  <style>
+    /* Base Nocturnal Petersburg Noir Styling */
+    html, body {
+      background-color: #0B0F17;
+      color: #E2E8F0;
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* Custom Scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0B0F17;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #232D42;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #334155;
+    }
+
+    /* Leaflet Container & Dark Noir Integration */
+    #spb-map {
+      background-color: #090D14;
+      z-index: 1;
+    }
+    .leaflet-container {
+      font-family: 'Inter', sans-serif !important;
+      background: #090D14 !important;
+    }
+    .leaflet-tile-pane {
+      filter: invert(100%) hue-rotate(180deg) brightness(85%) contrast(110%) saturate(40%);
+    }
     #spb-map {
       background-color: #090D14;
       z-index: 1;
